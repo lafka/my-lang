@@ -1,0 +1,24 @@
+# skip comments!
+
+1 + 2 + 3
+
+"hel" + "lo"
+
+# assign expr
+a = 1 + 2
+# match expression
+a := 1 + 2
+
+# match expression, UndefinedError
+n := 1 + 2
+
+# this is really just a guard
+when
+	a > 2 -> :ok
+	a < 2 -> :nope
+end
+
+# same as above
+match (a, 2)
+	(a, n) when a > n -> :ok
+	(a, n) when a < n -> :nope

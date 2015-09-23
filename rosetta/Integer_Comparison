@@ -1,0 +1,11 @@
+IO.write "Please enter two integers:\r\n"
+
+a :: Int = IO.read
+b :: Int = IO.read
+
+IO.write
+	when
+		a > b -> "#{a} is greater than #{b}"
+		a < b -> "#{a} is smaller than #{b}"
+		a = b -> "#{a} equals #{b}"
+	end
