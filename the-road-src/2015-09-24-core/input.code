@@ -1,0 +1,24 @@
+type Type      :: {}
+type Nothing   :: Type
+type Something :: Type { value: Nothing }
+
+type String  :: Something { }
+type Integer :: Something { }
+type Float   :: Something { }
+type Keyword :: Something { }
+type List    :: Something { }
+type Array   :: Something { }
+
+type Function :: Something { arguments: Array, body: Array }
+
+nil      :: Nothing
+anything :: Something
+
+int   :: Integer = 1
+str   :: String = "string"
+float :: Float = 1.0
+list  :: List = []
+array :: Array = ()
+fun   :: Function = () -> Nothing
+
+Nothing

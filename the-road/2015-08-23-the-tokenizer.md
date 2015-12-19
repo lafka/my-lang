@@ -11,6 +11,7 @@ semi-structured text to s-expressions.
    3. a decimal number `1.23`
    4. a kewyword `:keyword`
    5. a linked list `[ expr... ]`
+   5. a fixed size array/tuple `( expr... )`
 
 * Symbols are separated by whitespace, either a ASCII- space, vertical tab or newline
 * Everything that is NOT a symbol is a macro or a function call
