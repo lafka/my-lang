@@ -50,18 +50,18 @@ expressions below it.
 The first thing we get is the `a` which does not match anything
 we know off, so it's an `astref`, later we find the `=` which is a
 `match`, so our context is now `(expr, [astref, match])`.
-Once we hit the `b c` part we get `(expr, [astref, match, expr])`
+Once we hit the `b c` part we get `(expr, [astref, match, astref, astref])`
 And then we suddenly had a AST!? So what exactly are the parsing
 rules?
 
  - A string is defined using a matched set of quotes `'` or `"`.
  - A integer is defined by surrounding a `0..9*` with whitespace
  - A float is defined by suffixing a integer with `.0..9*`
- - An keyword is defined by `:[^\s]*` surrounded by whitespace
+ - An keyword is defined by `:[^\s]*`, terminated by whitespace (unless quoted)
  - Any expression is terminated either by `;` or a newline `\n`
  - Any set of expressions can be grouped by parentheses
   - this means both the following are legal, and equivalent:
-   - (somefun arg1 arg2)
+   - (arg1 + arg2)
    - +(arg1 arg2)
  - partial application should be possible, meaning `x = a + _` -> `(b) -> a + b`
  - infix operators: `left @op right` -> `(left right) -> @op(left right)`
@@ -106,14 +106,17 @@ support operators as above. Along with the funs:
 ```
 
 
+And yeah, I didn't do this at all....
+
+
 ### Memory management
 
 Coming from a dynamic language I have absolutely no clue about this,
 although I heard about this thing called `malloc` and `free`.
 
 So the idea is: Integers and Floats will be represented in the native
-size. If the platform has no support for floats, well then your out of
-luck!.
+size. If the platform has no support for floats, or can't represent
+64bit integers? well then your out of luck!.
 
 Strings will be represented as a sequence of integers. So far it looks like the
 actual structure of memory will be something like:
@@ -127,33 +130,32 @@ alloc = {
 ```
 
 and then each type would need to do something magical on its own for
-data:
+`data`:
 
 ```
 string = {
-  type => "STRING"       # The actual type
+  type => :string       # The actual type
 	next => pointer | NULL # The part of the string
 	buf  => some data
 }
 
 integer = {
-	type => "INT"
+	type => :int
   buf  => data
 }
 
 keyword = {
-	type => "KEYWORD"
-	sum => int  # the checksum of the thing! CRC32, SHA256 whatever is available
+	type => :keyword
 	buf => data # The string representation of the keyword
 }
 ```
 
 So this means the allocation of the string string "I consume memory"
-will be `1 + sizeof(int) + sizeof(string.type) + sizeof(pointer) +
-128`, a total of 321 bits.  so roughly 24 bytes overhead on a 64 bit machine,
-12 bytes on a 32bit, 6bytes on a 16bit or 4bytes on a 8bit.
+will be `1 + bitsof(int) + bitsof(string.type) + bitsof(string.pointer) +
+128`, a total of 280bits.  so roughly 19 bytes overhead on a 64 bit
+machine...
 
-Not all to bad! If this every was to be used on something < 32bit
+Not all to bad! If this ever was to be used on something < 32bit
 then static allocations would make more sense (how often do you
 allocate random variables??)
 
@@ -229,4 +231,4 @@ sub expressions we can convert it to an actual s-expr. This seems like
 a cumbersome way to process it as we need to go k levels, where k is
 the number of levels we must go down to find branchless expressions,
 before we can fulfil an branch - I do believe that this will work
-efficiently for arbitrary complex programs. 
+efficiently for arbitrary complex programs.
